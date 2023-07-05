@@ -2,27 +2,32 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
+
 class Hero(db.Model):
-    __tablename__ = 'hero'
+    __tablename__ = 'heroes'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(255), nullable=False)
-    super_name = db.Column(db.String(255), nullable=False)
-    powers = db.relationship('Power', secondary='hero_power', backref='heroes')
+    name = db.Column(db.String(100), nullable=False)
+    super_name = db.Column(db.String(100), nullable=False)
+    hero_powers = db.relationship(
+        'HeroPower', backref='hero', cascade='all, delete-orphan')
+
 
 class Power(db.Model):
-    __tablename__ = 'power'
+    __tablename__ = 'powers'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(255), nullable=False)
-    description = db.Column(db.String(255), nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.String(200), nullable=False)
+    hero_powers = db.relationship(
+        'HeroPower', backref='power', cascade='all, delete-orphan')
+
 
 class HeroPower(db.Model):
     __tablename__ = 'hero_power'
 
     id = db.Column(db.Integer, primary_key=True)
-    strength = db.Column(db.String(255), nullable=False)
-    hero_id = db.Column(db.Integer, db.ForeignKey('hero.id'), nullable=False)
-    power_id = db.Column(db.Integer, db.ForeignKey('power.id'), nullable=False)
-    hero = db.relationship('Hero', backref=db.backref('hero_powers', cascade='all, delete-orphan'))
-    power = db.relationship('Power', backref=db.backref('hero_powers', cascade='all, delete-orphan'))
+    strength = db.Column(db.String(20), nullable=False)
+    power_id = db.Column(db.Integer, db.ForeignKey(
+        'powers.id'), nullable=False)
+    hero_id = db.Column(db.Integer, db.ForeignKey('heroes.id'), nullable=False)
