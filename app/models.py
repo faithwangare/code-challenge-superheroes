@@ -1,4 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import func
+from sqlalchemy.orm import validates
 
 db = SQLAlchemy()
 
@@ -22,6 +24,12 @@ class Power(db.Model):
     hero_powers = db.relationship(
         'HeroPower', backref='power', cascade='all, delete-orphan')
 
+    @validates('description')
+    def validate_description(self, key, description):
+        if len(description) < 20:
+            raise ValueError("Description must be at least 20 characters long.")
+        return description
+
 
 class HeroPower(db.Model):
     __tablename__ = 'hero_power'
@@ -31,3 +39,10 @@ class HeroPower(db.Model):
     power_id = db.Column(db.Integer, db.ForeignKey(
         'powers.id'), nullable=False)
     hero_id = db.Column(db.Integer, db.ForeignKey('heroes.id'), nullable=False)
+
+    @validates('strength')
+    def validate_strength(self, key, strength):
+        valid_strengths = ['Strong', 'Weak', 'Average']
+        if strength not in valid_strengths:
+            raise ValueError(f"Invalid strength. Valid options are: {', '.join(valid_strengths)}")
+        return strength
